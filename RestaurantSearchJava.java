@@ -64,7 +64,6 @@ public class RestaurantSearchJava {
                 System.out.println(linkText + ", http://www.hungrygowhere.com" + linkHref);
             }
         }
-
     }
 
     public static int getRestaurantCount(String searchURL) throws IOException {
