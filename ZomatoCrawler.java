@@ -3,7 +3,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
- * Created by Games on 1/11/2016.
+ * Crawls the Zomato website for useful links
  */
 public class ZomatoCrawler extends CrawlerBase {
 
@@ -23,13 +23,9 @@ public class ZomatoCrawler extends CrawlerBase {
             isValid = true;
         }
         Elements results = doc.select("a");
-
+        // Look for all hrefs in the page
         for (Element result : results) {
             String linkHref = result.attr("abs:href");
-//            String linkText = result.text();
-//            System.out.println("BU:"+doc.baseUri());
-            //doc.baseUri()+
-//            linkHref = cleanUrl(linkHref);
             insertUrlToMemory(linkHref);
         }
         return isValid;
