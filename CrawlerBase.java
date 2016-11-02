@@ -205,6 +205,11 @@ public abstract class CrawlerBase implements Runnable {
         return doc;
     }
 
+    /**
+     *
+     * @param document
+     * @return Whether this website's url should be added to the list to be passed to the parser
+     */
     protected boolean processWebsiteData(Document document) {
         return false;
     }
