@@ -1,3 +1,4 @@
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -14,19 +15,19 @@ public class ZomatoCrawler extends CrawlerBase {
     }
 
     @Override
-    protected boolean processWebsiteData(Document doc) {
-        // Verify that the page is a restaurant page
-        boolean isValid = false;
-        Elements isRestaurantElement = doc.select("meta[content=\"zomatocom:restaurant\"]");
-        if (isRestaurantElement != null && isRestaurantElement.size() > 0) {
-            System.out.println("Is restaurant page!");
-            isValid = true;
-        }
-        Elements results = doc.select("a");
-        // Look for all hrefs in the page
-        for (Element result : results) {
-            String linkHref = result.attr("abs:href");
-            insertUrlToMemory(linkHref);
+    protected boolean processWebsiteData(Document doc) throws Exception {
+        Elements results = doc.select("div.pagination-number > div > b");
+        String linkText = results.last().text();
+        int pageCount = Integer.parseInt(linkText);
+        for(int i=1; i<=pageCount;i++){
+            String newSearchURL = searchURL + "?page=" + Integer.toString(i);
+            doc = Jsoup.connect(newSearchURL).timeout(0).userAgent("Mozilla/5.0").get();
+            results = doc.select("div.col-s-12 > a.result-title");
+
+            for (Element result : results) {
+                String linkHref = result.attr("href");
+                insertUrlToMemory(linkHref);
+            }
         }
         return isValid;
     }
