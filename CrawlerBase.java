@@ -28,6 +28,7 @@ public abstract class CrawlerBase implements Runnable {
     protected static long previousSaveTime = System.currentTimeMillis();
 
     protected static final int SAVE_INTERVAL = 60 * 1000;
+    protected static final int MAX_URLS = 6000;
 
     protected static boolean shouldStop = false;
 
@@ -90,7 +91,7 @@ public abstract class CrawlerBase implements Runnable {
             if (crawledUrls.contains(url) || urlsToCrawl.contains(url)) {
                 return;
             }
-            System.out.println("Inserting "+url);
+//            System.out.println("Inserting "+url);
             urlsToCrawl.add(url);
         }
     }
@@ -167,7 +168,7 @@ public abstract class CrawlerBase implements Runnable {
                 String[] urls = goodUrls.toArray(new String[goodUrls.size()]);
                 Path passedFilePath = Paths.get(passToParserUrlFilename);
                 System.out.println(urls.length + " good URLS to write");
-                try (BufferedWriter writer = Files.newBufferedWriter(passedFilePath, StandardCharsets.UTF_8, StandardOpenOption.APPEND)) {
+                try (BufferedWriter writer = Files.newBufferedWriter(passedFilePath, StandardCharsets.UTF_8, StandardOpenOption.CREATE)) {
                     for (String url : urls) {
                         boolean canAdd = canUrlBeAdded(url);
                         if (!canAdd) {
@@ -248,16 +249,19 @@ public abstract class CrawlerBase implements Runnable {
             }
 
             // Temporary break for testing
-            if (goodUrls.size() > 200) {
+            if (goodUrls.size() > MAX_URLS) {
                 shouldStop = true;
                 System.out.println("Get out!!!");
             }
 
-            long currentTime = System.currentTimeMillis();
-            if (currentTime - previousSaveTime >= SAVE_INTERVAL) {
-                previousSaveTime = currentTime;
-                saveDataToFile();
+            if (!shouldStop) {
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - previousSaveTime >= SAVE_INTERVAL) {
+                    previousSaveTime = currentTime;
+                    saveDataToFile();
+                }
             }
+
         }
 //        saveDataToFile();
     }

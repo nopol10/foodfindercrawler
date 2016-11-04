@@ -20,8 +20,8 @@ public class RestaurantSearchJava {
 
     public static void search() throws IOException {
 //        searchHungryGoWhere();
-//        searchTripAdvisor();
-        searchZomato();
+        searchTripAdvisor();
+//        searchZomato();
     }
 
     public static void searchHungryGoWhere() throws IOException {
@@ -71,6 +71,8 @@ public class RestaurantSearchJava {
     // TA
     public static void getRestaurantURLsTA(String searchURL) throws IOException {
         int restaurantCount = getRestaurantCountTA(searchURL);
+//        System.out.println("TA Restcount:"+restaurantCount);
+
         for(int i=0; i<=restaurantCount;i+=30){
             String newSearchURL = searchURL + "&o=a" + Integer.toString(i);
             Document doc = Jsoup.connect(newSearchURL).timeout(0).userAgent("Mozilla/5.0").get();

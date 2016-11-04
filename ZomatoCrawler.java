@@ -1,11 +1,8 @@
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-/**
- * Crawls the Zomato website for useful links
- */
+
 public class ZomatoCrawler extends CrawlerBase {
 
 
@@ -15,19 +12,22 @@ public class ZomatoCrawler extends CrawlerBase {
     }
 
     @Override
-    protected boolean processWebsiteData(Document doc) throws Exception {
-        Elements results = doc.select("div.pagination-number > div > b");
-        String linkText = results.last().text();
-        int pageCount = Integer.parseInt(linkText);
-        for(int i=1; i<=pageCount;i++){
-            String newSearchURL = searchURL + "?page=" + Integer.toString(i);
-            doc = Jsoup.connect(newSearchURL).timeout(0).userAgent("Mozilla/5.0").get();
-            results = doc.select("div.col-s-12 > a.result-title");
+    protected boolean processWebsiteData(Document doc) {
+        // Verify that the page is a restaurant page
+        boolean isValid = false;
+        Elements isRestaurantElement = doc.select("meta[content=\"zomatocom:restaurant\"]");
+        if (isRestaurantElement != null && isRestaurantElement.size() > 0
+                && !doc.baseUri().contains("/photos")
+                && !doc.baseUri().contains("/reviews")
+                && !doc.baseUri().contains("/menu")) {
+            System.out.println("Is restaurant page!");
+            isValid = true;
+        }
+        Elements results = doc.select("a");
 
-            for (Element result : results) {
-                String linkHref = result.attr("href");
-                insertUrlToMemory(linkHref);
-            }
+        for (Element result : results) {
+            String linkHref = result.attr("abs:href");
+            insertUrlToMemory(linkHref);
         }
         return isValid;
     }

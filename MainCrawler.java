@@ -41,17 +41,95 @@ public class MainCrawler {
         "https://www.zomato.com/id/selangor/oldschool-bandar-puteri"
     };
 
+    public static String[] tripAdvisorSites = {
+            "https://www.tripadvisor.com.sg/Restaurant_Review-g294265-d796940-Reviews-Summer_Pavilion-Singapore.html",
+            "https://www.tripadvisor.com/Restaurant_Review-g60763-d10059872-Reviews-Fluffy_s_Cafe_Pizzeria-New_York_City_New_York.html",
+            "https://www.tripadvisor.com.sg/Restaurant_Review-g294265-d10041900-Reviews-Sanobar_Lebanese_Cuisine_Seafood_Restaurant-Singapore.html",
+            "https://www.tripadvisor.com/Restaurant_Review-g188590-d8562698-Reviews-Omelegg_City_Centre-Amsterdam_North_Holland_Province.html",
+            "https://www.tripadvisor.com/Restaurant_Review-g308272-d1015824-Reviews-Jia_Jia_Tang_Bao_Huanghe_Road-Shanghai.html",
+            "https://www.tripadvisor.com/Restaurant_Review-g294201-d2165744-Reviews-Shogun_Japanese_Restaurant-Cairo_Cairo_Governorate.html",
+            "https://www.tripadvisor.com/Restaurant_Review-g60763-d1724974-Reviews-The_Black_Shack_Burgers-New_York_City_New_York.html",
+            "https://www.tripadvisor.com/Restaurant_Review-g186338-d720761-Reviews-The_Ledbury-London_England.html",
+            "https://www.tripadvisor.com/Restaurant_Review-g186338-d2412258-Reviews-Monmouth_Coffee_The_Borough-London_England.html",
+            "https://www.tripadvisor.com/Restaurant_Review-g186525-d1520621-Reviews-Oink-Edinburgh_Scotland.html",
+            "https://www.tripadvisor.com/Restaurant_Review-g41850-d532429-Reviews-Once_Upon_a_Table-Stockbridge_Massachusetts.html",
+    };
+
+    public static String[] hgwSites = {
+            "http://www.hungrygowhere.com/cuisine/chinese",
+            "http://www.hungrygowhere.com/cuisine/western",
+            "http://www.hungrygowhere.com/cuisine/halal",
+//            "http://www.hungrygowhere.com/cuisine/chinese?page_number=1",
+//            "http://www.hungrygowhere.com/cuisine/chinese?page_number=2",
+//            "http://www.hungrygowhere.com/cuisine/chinese?page_number=3",
+//            "http://www.hungrygowhere.com/cuisine/western?page_number=1",
+//            "http://www.hungrygowhere.com/cuisine/western?page_number=2",
+//            "http://www.hungrygowhere.com/cuisine/western?page_number=3",
+//            "http://www.hungrygowhere.com/cuisine/halal?page_number=1",
+//            "http://www.hungrygowhere.com/cuisine/halal?page_number=2",
+//            "http://www.hungrygowhere.com/cuisine/halal?page_number=3",
+    };
+//
+//    private static final String HUNGRYGOWHERE_CHINESE_SEARCH_URL = "http://www.hungrygowhere.com/cuisine/chinese/";
+//    private static final String HUNGRYGOWHERE_WESTERN_SEARCH_URL = "http://www.hungrygowhere.com/cuisine/western/";
+//    private static final String HUNGRYGOWHERE_HALAL_SEARCH_URL = "http://www.hungrygowhere.com/cuisine/halal/";
+
     public static Thread[] threads;
 
     public static void main(String[] args) throws IOException {
-        threads = new Thread[20];
+        int threadsPerSite = 20;
+        threads = new Thread[threadsPerSite*5];
 
         // Add Zomato crawlers
-        for (int i=0; i<threads.length; i++) {
+        int i=0;
+        for (i=0; i<threadsPerSite; i++) {
             Thread newThread = new Thread(new ZomatoCrawler(zomatoInitialSites[i], i));
             newThread.start();
             threads[i] = newThread;
         }
+
+        for (int j=0; i < threadsPerSite * 2; i++, j++) {
+            Thread newThread = new Thread(new TripAdvisorCrawler(tripAdvisorSites[Math.min(j, tripAdvisorSites.length-1)], j));
+            newThread.start();
+            threads[i] = newThread;
+        }
+
+//        int hgwChineseRestaurantCount = HGWCrawler.getRestaurantCountHGW(HUNGRYGOWHERE_CHINESE_SEARCH_URL);
+//        int hgwWesternRestaurantCount = HGWCrawler.getRestaurantCountHGW(HUNGRYGOWHERE_WESTERN_SEARCH_URL);
+//        int hgwHalalRestaurantCount = HGWCrawler.getRestaurantCountHGW(HUNGRYGOWHERE_HALAL_SEARCH_URL);
+//
+//        int hgwChinesePageCount = hgwChineseRestaurantCount/6 + 1;
+//        int hgwWesternPageCount = hgwWesternRestaurantCount/6 + 1;
+//        int hgwHalalPageCount = hgwHalalRestaurantCount/6 + 1;
+
+//        int hgwChinesePageCount = hgwChineseRestaurantCount/6 + 1;
+//        int hgwWesternPageCount = hgwWesternRestaurantCount/6 + 1;
+//        int hgwHalalPageCount = hgwHalalRestaurantCount/6 + 1;
+//
+
+        for (int k = 0; k < hgwSites.length; k++) {
+            int hgwRestaurantCount = HGWCrawler.getRestaurantCountHGW(hgwSites[k]);
+            int hgwPageCount = hgwRestaurantCount/6 + 1;
+            int pagesPerThread = (int) Math.ceil(hgwPageCount / (double) threadsPerSite);
+            System.out.println("HGW "+k+": "+hgwPageCount+", "+pagesPerThread);
+            for (int j=0; i < threadsPerSite * 3; i++, j++) {
+                int startPage = j * pagesPerThread;
+                int endPage = j * pagesPerThread + 6;
+                Thread newThread = new Thread(new HGWCrawler(hgwSites[k],
+                        j, startPage, endPage));
+                newThread.start();
+                threads[i] = newThread;
+            }
+        }
+        // Chinese restaurants
+//        for (int j=0; i < threadsPerSite * 3; i++, j++) {
+//            int startPage = j * hgwChinesePageCount;
+//            int endPage = j * hgwChinesePageCount + 6;
+//            Thread newThread = new Thread(new HGWCrawler(HUNGRYGOWHERE_CHINESE_SEARCH_URL,
+//                    , j, ));
+//            newThread.start();
+//            threads[i] = newThread;
+//        }
 
         // Crawl other sites here, e.g. below
 
@@ -61,9 +139,11 @@ public class MainCrawler {
 //            threads[i] = newThread;
 //        }
 
-        for(int i = 0; i < threads.length; i++) {
+        for(int t = 0; t < threads.length; t++) {
             try {
-                threads[i].join();
+                if (threads[t] != null) {
+                    threads[t].join();
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
