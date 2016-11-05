@@ -50,20 +50,19 @@ public class TripAdvisorCrawler extends CrawlerBase {
     protected boolean processWebsiteData(Document doc) {
         // Verify that the page is a restaurant page
         boolean isValid = false;
-        System.out.println("TAC:"+doc.baseUri());
 //        Elements isRestaurantElement = doc.select("meta[content=\"zomatocom:restaurant\"]");
         if (doc.baseUri().contains("Restaurant_Review")
                 && !doc.baseUri().endsWith("#REVIEWS")) {
-//            System.out.println("Is restaurant page!");
+            System.out.println("Is restaurant page! " + doc.baseUri());
             isValid = true;
         }
         Elements results = doc.select("a");
 
         for (Element result : results) {
             String linkHref = result.attr("abs:href");
-//            if (linkHref.contains("Restaurant_Review")) {
+            if (linkHref.contains(".tripadvisor.")) {
                 insertUrlToMemory(linkHref);
-//            }
+            }
         }
         return isValid;
     }

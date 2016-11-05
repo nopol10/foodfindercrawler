@@ -193,7 +193,7 @@ public abstract class CrawlerBase implements Runnable {
 
     protected Document getWebsiteData(String url) {
         Document doc = null;
-        System.out.println(index + " trying " + url);
+//        System.out.println(index + " trying " + url);
         try {
             doc = Jsoup.connect(url).timeout(0).userAgent("Mozilla/5.0").get();
         } catch (HttpStatusException hse) {
